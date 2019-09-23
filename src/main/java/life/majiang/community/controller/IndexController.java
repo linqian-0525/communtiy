@@ -3,14 +3,10 @@ package life.majiang.community.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
-/**
- * 2019/8/22 by Lin
- */
 @Controller
-public class HelloController {
+public class IndexController {
     @GetMapping("/")
-    public String hello(){
+    public String index(){
         return "index";
     }
 }
