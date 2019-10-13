@@ -1,12 +1,15 @@
 package life.majiang.community.controller;
 
-import life.majiang.community.mapper.QuesstionMapper;
-import life.majiang.community.model.Quesstion;
+import life.majiang.community.dto.QuestionDTO;
+import life.majiang.community.mapper.QuestionMapper;
+import life.majiang.community.model.Question;
 import life.majiang.community.model.User;
+import life.majiang.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -15,9 +18,19 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class PublishController {
     @Autowired
-    private QuesstionMapper quesstionMapper;
-
-
+    private QuestionMapper questionMapper;
+    @Autowired
+    private QuestionService  questionService;
+    @GetMapping("/publish/{id}")
+    public String edit(@PathVariable(name="id") Integer id,
+                       Model model){
+        QuestionDTO quesstion = questionService.getById(id);
+        model.addAttribute("title",quesstion.getTitle());
+        model.addAttribute("description",quesstion.getDescription());
+        model.addAttribute("tag",quesstion.getTag());
+        model.addAttribute("id",quesstion.getId());
+        return "publish";
+    }
     @GetMapping("/publish")
     public String publish(){
         return "publish";
@@ -28,6 +41,7 @@ public class PublishController {
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("tag") String tag,
+            @RequestParam("id") Integer id,
             HttpServletRequest request,
             Model model
     ){
@@ -52,14 +66,14 @@ public class PublishController {
             model.addAttribute("error","用户未登录");
             return "publish";
         }
-        Quesstion quesstion = new Quesstion();
-        quesstion.setTitle(title);
-        quesstion.setDescription(description);
-        quesstion.setTag(tag);
-        quesstion.setCreator(user.getId());
-        quesstion.setGmtCreate(System.currentTimeMillis());
-        quesstion.setGmtModified(quesstion.getGmtCreate());
-        quesstionMapper.create(quesstion);
+        Question question = new Question();
+        question.setTitle(title);
+        question.setDescription(description);
+        question.setTag(tag);
+        question.setCreator(user.getId());
+
+        question.setId(id);
+        questionService.createOrUpdate(question);
         return "redirect:/";
     }
 }
